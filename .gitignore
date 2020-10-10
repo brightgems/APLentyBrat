@@ -1,0 +1,18 @@
+
+*.md.html
+*.pyc
+*.prefs
+*.project
+*.pydevproject
+output
+data
+
+# OS X file
+.DS_Store
+
+
+# project temporary file
+work
+.pytest_cache
+.cache
+.vscode
