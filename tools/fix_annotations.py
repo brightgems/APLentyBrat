@@ -2,6 +2,8 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
+# compare old text and new text, then make annotation apply to new text
+
 # Preamble {{{
 
 import re
@@ -24,7 +26,9 @@ sys_path.append(os.path.join(os.path.dirname(__file__), '..'))
 # }}}
 
 
-# Processing {{{
+""" 
+
+"""
 def correct_annotations(orig_fn, ann_fn, change_fn):
     with annotation.TextAnnotations(ann_fn) as anns:
         orig_text = anns.get_document_text()
@@ -77,7 +81,7 @@ if __name__ == "__main__":
     parser.add_argument('changed_text', help='The changed TXT file')
     opts = parser.parse_args()
 
-    opts.original_ann = re.sub(r'\.txt$', '', opts.original_text)
+    opts.original_ann = re.sub(r'\.txt$', '.ann', opts.original_text)
 
     correct_annotations(
         opts.original_text,

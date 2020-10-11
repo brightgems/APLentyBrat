@@ -573,7 +573,6 @@ class Annotations(object):
         for e_ann in self.get_events():
             try:
                 tr_ann = self.get_ann_by_id(e_ann.trigger)
-
                 # If the annotation is not text-bound or of different type
                 if (not isinstance(tr_ann, TextBoundAnnotation) or
                         tr_ann.type != e_ann.type):
@@ -992,7 +991,6 @@ class Annotations(object):
         try:
             # first space-separated string is type
             type, rest = data.split(' ', 1)
-
             # rest should be semicolon-separated list of "START END"
             # pairs, where START and END are integers
             spans = []
@@ -1013,6 +1011,7 @@ class Annotations(object):
                 spans.append((start, end))
 
         except BaseException:
+            
             raise IdedAnnotationLineSyntaxError(
                 id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
@@ -1269,7 +1268,7 @@ class TextAnnotations(Annotations):
             else:
                 # Do we have a known extension?
                 _, file_ext = splitext(document)
-                if not file_ext or file_ext not in KNOWN_FILE_SUFF:
+                if not file_ext or file_ext[1:] not in KNOWN_FILE_SUFF:
                     textfile_path = document
                 else:
                     textfile_path = document[:len(document) - len(file_ext)]
@@ -1381,6 +1380,7 @@ class TextAnnotations(Annotations):
         # in which case the reasonable text file name guess is
         # "PMID.txt", not "PMID.a1.txt"
         textfn = document + '.' + TEXT_FILE_SUFFIX
+        
         try:
             with open_textfile(textfn, 'r') as f:
                 return f.read()
