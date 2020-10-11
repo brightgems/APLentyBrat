@@ -5,6 +5,15 @@ import json
 import os
 
 from neuroner import utils_nlp    
+from neuroner.dataset import NEWLINE
+try:
+    import annotation
+except ImportError:
+    import os.path
+    from sys import path as sys_path
+    # Guessing that we might be in the brat tools/ directory ...
+    sys_path.append(os.path.join(os.path.dirname(__file__), '../server/src'))
+    import annotation
 
 
 def get_start_and_end_offset_of_token_from_spacy(token):
@@ -23,7 +32,12 @@ def get_sentences_and_tokens_from_spacy(text, spacy_nlp):
             token_dict = {}
             token_dict['start'], token_dict['end'] = get_start_and_end_offset_of_token_from_spacy(token)
             token_dict['text'] = text[token_dict['start']:token_dict['end']]
-            if token_dict['text'].strip() in ['\n', '\t', ' ', '']:
+            # replace \n to special token
+            if token_dict['text']=='\n':
+                token_dict['text'] = NEWLINE
+            elif token_dict['text']=='\t':
+                token_dict['text'] = '-'
+            if token_dict['text'].strip() == '':
                 continue
             # Make sure that the token text does not contain any space
             if len(token_dict['text'].split(' ')) != 1:
@@ -33,6 +47,30 @@ def get_sentences_and_tokens_from_spacy(text, spacy_nlp):
             sentence_tokens.append(token_dict)
         sentences.append(sentence_tokens)
     return sentences
+
+
+def get_tokens_from_spacy(text, spacy_nlp):
+    document = spacy_nlp(text)
+    # sentences
+    sentence_tokens = []
+    for token in document:
+        token_dict = {}
+        token_dict['start'], token_dict['end'] = get_start_and_end_offset_of_token_from_spacy(token)
+        token_dict['text'] = text[token_dict['start']:token_dict['end']]
+        # replace \n to special token
+        if token_dict['text']=='\n':
+            token_dict['text'] = NEWLINE
+        elif token_dict['text']=='\t':
+            token_dict['text'] = '-'
+        if token_dict['text'].strip() == '':
+            continue
+        # Make sure that the token text does not contain any space
+        if len(token_dict['text'].split(' ')) != 1:
+            print("WARNING: the text of the token contains space character, replaced with hyphen\n\t{0}\n\t{1}".format(token_dict['text'], 
+                                                                                                                        token_dict['text'].replace(' ', '-')))
+            token_dict['text'] = token_dict['text'].replace(' ', '-')
+        sentence_tokens.append(token_dict)
+    return [sentence_tokens]
 
 def get_stanford_annotations(text, core_nlp, port=9000, annotators='tokenize,ssplit,pos,lemma'):
     output = core_nlp.annotate(text, properties={
@@ -73,18 +111,19 @@ def get_entities_from_brat(text_filepath, annotation_filepath, verbose=False):
 
     # parse annotation file
     entities = []
-    with codecs.open(annotation_filepath, 'r', 'UTF-8') as f:
-        for line in f.read().splitlines():
-            anno = line.split()
-            id_anno = anno[0]
+    with annotation.Annotations(annotation_filepath, read_only=True) as anns:
+        tbs = list(anns.get_textbounds())
+        for tbi, tb in enumerate(tbs):
             # parse entity
-            if id_anno[0] == 'T':
+            pos=0
+            for spani, span in enumerate(tb.spans):
                 entity = {}
-                entity['id'] = id_anno
-                entity['type'] = anno[1]
-                entity['start'] = int(anno[2])
-                entity['end'] = int(anno[3])
-                entity['text'] = ' '.join(anno[4:])
+                entity['id'] = tb.id
+                entity['type'] = tb.type
+                entity['start'] = span[0]
+                entity['end'] = span[1]
+                span_len=span[1]-span[0]
+                entity['text'] = tb.tail.strip()[pos:pos+span_len]
                 if verbose:
                     print("entity: {0}".format(entity))
                 # Check compatibility between brat text and anootation
@@ -93,8 +132,10 @@ def get_entities_from_brat(text_filepath, annotation_filepath, verbose=False):
                     print("Warning: brat text and annotation do not match.")
                     print("\ttext: {0}".format(text[entity['start']:entity['end']]))
                     print("\tanno: {0}".format(entity['text']))
+                    print("\annotation_filepath: {0}".format(annotation_filepath))
                 # add to entitys data
                 entities.append(entity)
+                pos+=span_len+1
     if verbose: print("\n\n")
     
     return text, entities
@@ -115,10 +156,14 @@ def check_brat_annotation_and_text_compatibility(brat_folder):
         text, entities = get_entities_from_brat(text_filepath, annotation_filepath)
     print("Done.")
 
-def brat_to_conll(input_folder, output_filepath, tokenizer, language):
+def brat_to_conll(input_folder, output_filepath, tokenizer, language, preserve_new_line=False):
     '''
     Assumes '.txt' and '.ann' files are in the input_folder.
     Checks for the compatibility between .txt and .ann at the same time.
+     
+    Args:
+    ================================================================
+    preserve_new_line: where split sentences by newline character. if yes, preserve \n character using token NEWLINE
     '''
     if tokenizer == 'spacy':
         import spacy
@@ -144,10 +189,14 @@ def brat_to_conll(input_folder, output_filepath, tokenizer, language):
         entities = sorted(entities, key=lambda entity:entity["start"])
         
         if tokenizer == 'spacy':
-            sentences = get_sentences_and_tokens_from_spacy(text, spacy_nlp)
+            if preserve_new_line:
+                # all tokens are in a sentence
+                sentences = get_tokens_from_spacy(text, spacy_nlp)
+            else:
+                sentences = get_sentences_and_tokens_from_spacy(text, spacy_nlp)
         elif tokenizer == 'stanford':
             sentences = get_sentences_and_tokens_from_stanford(text, core_nlp)
-        
+        print('-DOCSTART- -X- -X- O',file=output_file)
         for sentence in sentences:
             inside = False
             previous_token_label = 'O'
@@ -155,8 +204,8 @@ def brat_to_conll(input_folder, output_filepath, tokenizer, language):
                 token['label'] = 'O'
                 for entity in entities:
                     if entity['start'] <= token['start'] < entity['end'] or \
-                       entity['start'] < token['end'] <= entity['end'] or \
-                       token['start'] < entity['start'] < entity['end'] < token['end']:
+                        entity['start'] < token['end'] <= entity['end'] or \
+                        token['start'] < entity['start'] < entity['end'] < token['end']:
 
                         token['label'] = entity['type'].replace('-', '_') # Because the ANN doesn't support tag with '-' in it
 
@@ -181,7 +230,7 @@ def brat_to_conll(input_folder, output_filepath, tokenizer, language):
                 output_file.write('{0} {1} {2} {3} {4}\n'.format(token['text'], base_filename, token['start'], token['end'], gold_label))
             if verbose: print('\n')
             output_file.write('\n')
-
+        
     output_file.close()
     print('Done.')
     if tokenizer == 'spacy':

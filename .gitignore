@@ -13,7 +13,6 @@ data
 
 # project temporary file
 work
-trained_models
 .pytest_cache
 .cache
 .vscode

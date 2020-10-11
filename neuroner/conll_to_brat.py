@@ -5,6 +5,7 @@ import shutil
 
 from neuroner import utils
 from neuroner import utils_nlp
+from neuroner.dataset import NEWLINE
 
 def generate_reference_text_file_for_conll(conll_input_filepath, conll_output_filepath, text_folder):
     '''
@@ -89,9 +90,9 @@ def check_compatibility_between_conll_and_brat_text(conll_filepath, brat_folder)
         token['text'] = str(line[0])
         token['start'] = int(line[2])
         token['end'] = int(line[3])
-
+        normalized_text = lambda text: text.replace(' ', '-').replace('\t', '-').replace('\n',NEWLINE)
         # check that the token text matches the original
-        if token['text'] != text[token['start']:token['end']]:
+        if token['text'] != normalized_text(text[token['start']:token['end']]):
             print("Warning: conll and brat text do not match.")
             print("\tCONLL: {0}".format(token['text']))
             print("\tBRAT : {0}".format(text[token['start']:token['end']]))
@@ -192,7 +193,8 @@ def conll_to_brat(conll_input_filepath, conll_output_filepath, brat_original_fol
         token['start'] = int(line[2])
         token['end'] = int(line[3])
         # check that the token text matches the original
-        if token['text'] != text[token['start']:token['end']].replace(' ', '-'):
+        normalized_text = lambda text: text.replace(' ', '-').replace('\t', '-').replace('\n',NEWLINE)
+        if token['text'] != normalized_text(text[token['start']:token['end']]):
             print("Warning: conll and brat text do not match.")
             print("\tCONLL: {0}".format(token['text']))
             print("\tBRAT : {0}".format(text[token['start']:token['end']]))

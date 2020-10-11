@@ -126,6 +126,8 @@ def _get_default_param():
              'optimizer':'sgd',
              'output_folder':'./output',
              'output_scores':False,
+             'max_sequence_len': 128,
+             'preserve_new_line': False,
              'patience':10,
              'parameters_filepath': os.path.join('.','parameters.ini'),
              'plot_format':'pdf',
@@ -561,7 +563,7 @@ class NeuroNER(object):
                     else:
                         # Populate conll file based on brat files
                         brat_to_conll.brat_to_conll(dataset_brat_folders[dataset_type], 
-                            dataset_filepath_for_tokenizer, parameters['tokenizer'], parameters['spacylanguage'])
+                            dataset_filepath_for_tokenizer, parameters['tokenizer'], parameters['spacylanguage'],parameters['preserve_new_line'])
                     dataset_filepaths[dataset_type] = dataset_filepath_for_tokenizer
 
                 # Brat text files do not exist

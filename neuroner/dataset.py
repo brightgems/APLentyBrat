@@ -15,6 +15,7 @@ from lmdb_embeddings.exceptions import MissingWordError
 from neuroner import utils
 from neuroner import utils_nlp
 
+NEWLINE = '\u22ee'
 
 class Dataset(object):
     """A class for handling data sets."""
@@ -176,11 +177,14 @@ class Dataset(object):
             all_tokens_in_pretraining_dataset = pretraining_dataset.index_to_token.values()
             all_characters_in_pretraining_dataset = pretraining_dataset.index_to_character.values()
 
-        remap_to_unk_count_threshold = 1
-        self.UNK_TOKEN_INDEX = 0
+        remap_to_unk_count_threshold = 5
         self.PADDING_CHARACTER_INDEX = 0
+        self.UNK_TOKEN_INDEX = 1
+        self.NEWLINE_INDEX =2
         self.tokens_mapped_to_unk = []
+        self.PADDING = 'PADDING'
         self.UNK = 'UNK'
+        self.NEWLINE = NEWLINE
         self.unique_labels = []
         labels = {}
         tokens = {}
@@ -234,15 +238,19 @@ class Dataset(object):
             print('character_count[\'all\']: {0}'.format(character_count['all']))
 
         token_to_index = {}
-        token_to_index[self.UNK] = self.UNK_TOKEN_INDEX
-        iteration_number = 0
         number_of_unknown_tokens = 0
         if self.verbose: 
             print("parameters['remap_unknown_tokens_to_unk']: {0}".format(parameters['remap_unknown_tokens_to_unk']))
         if self.verbose: 
             print("len(token_count['train'].keys()): {0}".format(len(token_count['train'].keys())))
+
+        preserved_tokens ={self.PADDING:self.PADDING_CHARACTER_INDEX, self.UNK:self.UNK_TOKEN_INDEX,self.NEWLINE:self.NEWLINE_INDEX}
+        token_to_index.update(preserved_tokens)
+        iteration_number = len(token_to_index)
+        
         for token, count in token_count['all'].items():
-            if iteration_number == self.UNK_TOKEN_INDEX: iteration_number += 1
+            if token in token_to_index:
+                continue
 
             if parameters['remap_unknown_tokens_to_unk'] == 1 and \
                 (token_count['train'][token] == 0 or \

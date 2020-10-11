@@ -4,6 +4,7 @@ import re
 import time
 
 import tensorflow as tf
+import numpy as np
 
 from neuroner import utils
 from neuroner import utils_tf
@@ -358,7 +359,7 @@ class EntityLSTM(object):
                 '0', token.lower()))
                 number_of_token_lowercase_and_digits_replaced_with_zeros_found += 1
             else:
-                continue
+                initial_weights[dataset.token_to_index[token]] = np.random.rand(parameters['token_embedding_dimension'])
             number_of_loaded_word_vectors += 1
         elapsed_time = time.time() - start_time
         

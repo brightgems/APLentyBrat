@@ -1,0 +1,51 @@
+number_of_token_original_case_found: 7344
+number_of_token_lowercase_found: 265
+number_of_token_digits_replaced_with_zeros_found: 1
+number_of_token_lowercase_and_digits_replaced_with_zeros_found: 0
+number_of_loaded_word_vectors: 9230
+dataset.vocabulary_size: 7611
+
+Starting epoch 5
+Training completed in 160.55 seconds
+Evaluate model on the train set
+processed 58436 tokens with 3187 phrases; found: 1196 phrases; correct: 551.
+accuracy:  83.56%; precision:  46.07%; recall:  17.29%; FB1:  25.14
+     Authenticity: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Benefit: precision:  33.49%; recall:  14.64%; FB1:  20.37  424
+            Brand: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+      Endorsement: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+       Experience: precision:  14.29%; recall:   5.19%; FB1:   7.61  77
+           Format: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+         Fragance: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+       Ingredient: precision:  29.41%; recall:   2.18%; FB1:   4.07  17
+          Insight: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Package: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Product: precision:  58.22%; recall:  44.51%; FB1:  50.45  675
+        Promotion: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Quality: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Service: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+ SkinAffectFactor: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+      SkinProblem: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+         SkinType: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Texture: precision:   0.00%; recall:   0.00%; FB1:   0.00  2
+            Usage: precision:   0.00%; recall:   0.00%; FB1:   0.00  1
+
+Evaluate model on the valid set
+processed 5411 tokens with 330 phrases; found: 148 phrases; correct: 44.
+accuracy:  79.21%; precision:  29.73%; recall:  13.33%; FB1:  18.41
+          Benefit: precision:  33.33%; recall:  20.00%; FB1:  25.00  60
+            Brand: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+      Endorsement: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+       Experience: precision:  10.00%; recall:  11.76%; FB1:  10.81  20
+           Format: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+         Fragance: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+       Ingredient: precision:   0.00%; recall:   0.00%; FB1:   0.00  1
+          Package: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Product: precision:  32.81%; recall:  24.14%; FB1:  27.81  64
+        Promotion: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Quality: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Service: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+      SkinProblem: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+         SkinType: precision:   0.00%; recall:   0.00%; FB1:   0.00  0
+          Texture: precision:  33.33%; recall:   6.25%; FB1:  10.53  3
+            Usage: precision:   0.00%; recall:   0.00%; FB1:   0.00  0

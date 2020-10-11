@@ -23,6 +23,7 @@ def fix_ann(ann_fn):
     orig_text= codecs.open(ann_fn.replace('.ann','.txt')).read()
     with annotation.Annotations(ann_fn) as anns:
         tbs = list(anns.get_textbounds())
+        tbs = sorted(tbs, key=lambda tb: tb.start)
         firstIndex=0
         indices = []
         for tbi, tb in enumerate(tbs):
@@ -30,7 +31,7 @@ def fix_ann(ann_fn):
             for spani, span in enumerate(tb.spans):
                 new_spantext=orig_text[span[0]:span[1]]
                 span_len =span[1]-span[0]
-                old_spantext=tb.tail[1:-1][pos:pos+span_len]
+                old_spantext=tb.tail.strip()[pos:pos+span_len]
                 # santiy check
                 if old_spantext!=new_spantext:
                     firstIndex = orig_text.find(old_spantext,firstIndex)
